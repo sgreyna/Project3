@@ -74,16 +74,16 @@
                                 <h2>Actuals:</h2>                   
                                           
                                     <form method=post enctype=multipart/form-data>
-                                        <input type ="text" name = firstNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
-                                        <input type ="text" name = secondNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
-                                        <input type ="text" name = thirdNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
-                                        <p> <input type ="text" name = drawDate placeholder = "MM/DD/YYY">
-                                        <input type ="text" name = drawDate placeholder = "Monring/Evening"> </p>
+                                        <input type ="text" id = firstNumberActual name = firstNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
+                                        <input type ="text" id = secondNumberActual name = secondNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
+                                        <input type ="text" id = thirdNumberActual name = thirdNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
+                                        <p> <input type ="text" id = drawDate name = drawDate placeholder = "MM/DD/YYY">
+                                        <input type ="text" id = drawSequence name = drawSequence placeholder = "Monring/Evening"> </p>
 
-
+                                        <button type="submit" name="save" value="Submit" style="font-weight:bold;" onclick = addToCsv() >Save</button> 
                                     </form>
                                     <br>
-                                    <button type="submit" name="save" value="save" style="font-weight:bold;" >Save</button> 
+                                    
                             </div>
                         </div>
                         </div>
