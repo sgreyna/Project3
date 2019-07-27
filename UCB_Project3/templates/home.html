@@ -40,13 +40,17 @@
                     <h2>Give Me The Daily3</h2>
                     <hr>
    
-                      <form method=post enctype=multipart/form-data>
+                    <form action ="{{ url_for('predictTrainedModel') }}" method="post">
 
                         <p class = "p1">Predict Using a Trained ML Model:  </p>
                         <p> <input type=file name=file>  </p>                       
-                        <p> <button type="submit" name="Predict" value="Submit">Predict</button> </p>
+                        <p> <button type="submit" name="Predict" value="Submit" onclick = predictTrainedModel()>Predict</button> </p>
 
                         <br><br>
+
+                    </form>  
+
+                    <form action ="{{ url_for('predictAndTrain') }}" method="post">
 
                          <p class = "p1">Train and Predict a New Model: 
                          <p>Choose an ML Model:
@@ -58,8 +62,8 @@
                         </p>
                           
                          <p>Upload Data: <input type=file name=file> </p>
-                        <button type="submit" name = "Train" value="Train">Train & Predict</button>
-                        </form>  
+                        <button type="submit" name = "Train" value="Train" onclick = predictAndTrain()>Train & Predict</button>
+                    </form>  
                         <br>
 
                         <div class = "row">
@@ -73,15 +77,14 @@
                             <div class = "column"style="background-color: #bbb;">
                                 <h2>Actuals:</h2>                   
                                           
-                                    <form method=post enctype=multipart/form-data>
-                                        <input type ="text" id = firstNumberActual name = firstNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
-                                        <input type ="text" id = secondNumberActual name = secondNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
-                                        <input type ="text" id = thirdNumberActual name = thirdNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
-                                        <p> <input type ="text" id = drawDate name = drawDate placeholder = "MM/DD/YYY">
-                                        <input type ="text" id = drawSequence name = drawSequence placeholder = "Monring/Evening"> </p>
-
-                                        <button type="submit" name="save" value="Submit" style="font-weight:bold;" onclick = addToCsv() >Save</button> 
-                                    </form>
+                     <form action ="{{ url_for('addToCsv') }}" method="post">
+                            <input type ="text" id = firstNumberActual name = firstNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
+                            <input type ="text" id = secondNumberActual name = secondNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
+                            <input type ="text" id = thirdNumberActual name = thirdNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
+                            <p> <input type ="text" id = drawDate name = drawDate placeholder = "MM/DD/YYY">
+                                <input type ="text" id = drawSequence name = drawSequence placeholder = "Monring/Evening"> </p>
+                            <button type="submit" name="save" value="Submit" style="font-weight:bold;" onclick = addToCsv() >Save</button> 
+                    </form>
                                     <br>
                                     
                             </div>
