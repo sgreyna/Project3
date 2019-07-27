@@ -9,18 +9,28 @@ import pandas as pd
 app = Flask(__name__)
 
 @app.route("/",  methods =['GET', 'POST'] )
-
 def main():
+
+    return render_template ('home.html')
+
+@app.route("/predictTrainedModelRoute", methods=['POST'])
+def predictTrainedModel():
+    # Add code here
+
+
+
+@app.route("/predictAndTrainRoute", methods=['POST'])
+def predictAndTrain():
+     # Add code here
+
+
+
+
+@app.route("/addToCSVRoute", methods=['POST'])
+def addToCsv():
     if request.method =='POST':
         csvData = [];
         csv_path = "dailyData/dailyData.csv"
-
-        # collect info
-        # csvData[0] = request.form['firstNumberActual'];
-        # csvData[1] = request.form['secondNumberActual'];
-        # csvData[2] = request.form['thirdNumberActual'];
-        # csvData[3] = request.form['drawDate'];
-        # csvData[4] = request.form['drawSequence'];
 
         # newData = pd.DataFrame({'Draw Date': csvData[:,3], 'Draw Sequence': csvData[:,4],'First Number': csvData[:,3],'Second Number': csvData[:,3],'Third Number': csvData[:,3]})
         newData = pd.DataFrame([{'Draw Date':request.form['drawDate'], 'Draw Sequence': request.form['drawSequence'],'First Number': request.form['firstNumberActual'],'Second Number': request.form['secondNumberActual'],'Third Number': request.form['thirdNumberActual']}])
