@@ -12,9 +12,9 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 
   <script> 
-      var myData = '{{df}}'
+     // var myData = JSON.parse('{{ df | tojson | safe}}')
 
-      console.log(myData)
+      // console.log(myData)
 
     
     </script>
@@ -38,6 +38,11 @@
         </ul>
       </div>
     </nav>
+
+
+      <p>'{{ name }}'</p>
+
+      <img src= '/graph' alt="Chart" height="42" width="42">
 
 </body>
 
