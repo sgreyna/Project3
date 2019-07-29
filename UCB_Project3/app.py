@@ -1,11 +1,19 @@
 
 
 import os
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, send_file
 import pandas as pd
 import numpy
 import pickle
 import json
+import seaborn as sns
+import matplotlib.pyplot as plt
+from io import BytesIO
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
+
 
 
 
@@ -221,6 +229,7 @@ def getDataFromCSV():
 
     # Read the CSV into a Pandas DataFrame
     df = pd.read_csv(csv_path)
+    
 
     return render_template ('data.html', tables=[df.to_html(classes = 'data')], titles = df.columns.values)
 
@@ -231,15 +240,21 @@ def graph():
     # Create a reference the CSV file desired
     csv_path = "dailyData/dailyData.csv"
 
+
     # Read the CSV into a Pandas DataFrame
     df = pd.read_csv(csv_path)
     df = df[['First Number', 'Second Number', 'Third Number']]
-    df = df.to_dict() 
+    new_df_col_all= df[['First Number', 'Second Number' ,'Third Number']]
 
-    print(df)
+    
+    sns.countplot(x="variable", hue="value", data=pd.melt(new_df_col_all))
+    plt.title("Occurence in all three positions")
+    img = BytesIO()
+    plt.savefig(img)
+    img.seek(0)
 
-    return render_template ('graph.html', df=df)
 
+    return send_file(img, mimetype = 'image/png') 
 
 if __name__ == "__main__":
     app.run(debug=True)
