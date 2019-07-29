@@ -1,27 +1,192 @@
 
 
 import os
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 import pandas as pd
+import numpy
+import pickle
+
+
+
+from numpy import array
+from keras.models import Sequential
+from keras.layers import LSTM
+from keras.layers import Dense
+from tensorflow.keras.models import load_model
 
 
 
 app = Flask(__name__)
 
+
+def getListOfTrainedModels():
+    path = os.getcwd()+"/MLModels"
+    list_of_files = {}
+
+    for filename in os.listdir(path):
+        list_of_files[filename] = filename[0]
+
+    return list_of_files
+
+
+
+def split_sequence(sequence, n_steps):
+    X, y = list(), list()
+    for i in range(len(sequence)):
+        # find the end of this pattern
+        end_ix = i + n_steps
+        # check if we are beyond the sequence
+        if end_ix > len(sequence)-1:
+            break
+        # gather input and output parts of the pattern
+        seq_x, seq_y = sequence[i:end_ix], sequence[end_ix]
+        X.append(seq_x)
+        y.append(seq_y)
+    return array(X), array(y)
+
+
 @app.route("/",  methods =['GET', 'POST'] )
 def main():
+    firstY = 0
+    secondY = 0
+    thirdY = 0
 
-    return render_template ('home.html')
+    list_of_files = getListOfTrainedModels()
+ 
+
+    return render_template ('home.html', firstY=firstY, secondY=secondY, thirdY=thirdY, list_of_files = list_of_files)
+
+@app.route("/clear",  methods =['GET', 'POST'] )
+def clear():
+
+    return redirect (url_for("main"))
 
 @app.route("/predictTrainedModelRoute", methods=['POST'])
 def predictTrainedModel():
-    # Add code here
+    if request.method == 'POST':
+        print('complete')
 
+        #import dailyData
+        datadf = pd.read_csv("dailyData/dailyData.csv") 
+
+        # Which model is selected?
+        modelSelection = request.form.get('trainedModelList')
+        modelSelected = str(modelSelection)
+        print(modelSelected)
+   
+        if modelSelected.find('Keras_Sequential_30') > 0:
+
+
+            ################################################
+            #### First Number
+            ################################################
+
+            df = datadf['First Number']
+
+            lottoNum = numpy.asarray(df)
+            num = lottoNum[-30:]
+
+            from tensorflow.keras.models import load_model
+            model = load_model("MLModels/Keras_Sequential_30_P1_T100_A000.h5")
+
+            x_input = num
+            x_input = x_input.reshape((1, 30, 1))
+            firstY = model.predict(x_input, verbose=0)
+            firstY = int(round(firstY[0][0]))
+            print(firstY)
+
+
+            ################################################
+            #### Second Number
+            ################################################
+
+            df = datadf['Second Number']
+
+            lottoNum = numpy.asarray(df)
+            num = lottoNum[-30:]
+
+      
+            model = load_model("MLModels/Keras_Sequential_30_P2_T100_A000.h5")
+
+            x_input = num
+            x_input = x_input.reshape((1, 30, 1))
+            secondY = model.predict(x_input, verbose=0)
+            secondY = int(round(secondY[0][0]))
+            print(secondY)
+
+            ################################################
+            #### Third Number
+            ################################################
+
+            df = datadf['Third Number']
+
+            lottoNum = numpy.asarray(df)
+            num = lottoNum[-30:]
+
+      
+            model = load_model("MLModels/Keras_Sequential_30_P3_T100_A000.h5")
+
+            x_input = num
+            x_input = x_input.reshape((1, 30, 1))
+            thirdY = model.predict(x_input, verbose=0)
+            thirdY = int(round(thirdY[0][0]))
+            print(thirdY)
+
+            #model_loss, model_accuracy =  model.evaluate(X,y,verbose=1)
+            #print({model_accuracy})
+
+            list_of_files = getListOfTrainedModels()
+
+            return render_template ('home.html', firstY=firstY, secondY=secondY, thirdY=thirdY, list_of_files = list_of_files, modelSelected= modelSelected)
+
+        elif modelSelected.find('pSKLearn_MultipleRegression') > 0:
+
+            # get new X
+            datadf['lottoX'] = datadf['First Number'].astype(str) +  datadf['Second Number'].astype(str) +  datadf['Third Number'].astype(str) 
+            dataLotto = datadf[['lottoX']].astype(float)
+            newX = numpy.asarray(dataLotto['lottoX'])
+            newX = newX[-200:]
+            newX = newX.reshape(1, -1)
+            newX
+
+
+            #load model
+            import pickle
+            pkl_filename = "MLModels/pSKLearn_MultipleRegression_AP_R100_R000.pkl"
+            with open(pkl_filename, 'rb') as file:
+                pickle_model = pickle.load(file)
+
+            #predict
+            Ypredict = pickle_model.predict(newX)
+            Ypredict = int(numpy.round(Ypredict,0))
+            Ypredict = str(Ypredict)
+
+            firstY = int(Ypredict[0])
+            secondY = int(Ypredict[1])
+            thirdY = int(Ypredict[2])
+
+            list_of_files = getListOfTrainedModels()
+
+            return render_template ('home.html', firstY=firstY, secondY=secondY, thirdY=thirdY, list_of_files = list_of_files)
+
+
+
+        else:
+            firstY = 0
+            secondY = 0
+            thirdY = 0
+
+            list_of_files = getListOfTrainedModels()
+
+            return render_template ('home.html', firstY=firstY, secondY=secondY, thirdY=thirdY, list_of_files = list_of_files)
+
+        
 
 
 @app.route("/predictAndTrainRoute", methods=['POST'])
 def predictAndTrain():
      # Add code here
+     return render_template ('home.html', firstY=firstY, secondY=secondY, thirdY=thirdY, model=model)
 
 
 
@@ -42,7 +207,7 @@ def addToCsv():
         # return render_template('home.html')
 
 
-    return render_template ('home.html')
+    return render_template ('data.html')
 
 
 
@@ -58,58 +223,6 @@ def getDataFromCSV():
 
     return render_template ('data.html', tables=[df.to_html(classes = 'data')], titles = df.columns.values)
 
-
-
-# @app.route('/', methods=['GET', 'POST'])
-# def upload_file():
-#     data = {"success": False}
-#     if request.method == 'POST':
-#         print(request)
-
-#         if request.files.get('file'):
-#             # read the file
-#             file = request.files['file']
-
-#             # read the filename
-#             filename = file.filename
-
-#             # create a path to the uploads folder
-#             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-#             # Save the file to the uploads folder
-#             file.save(filepath)
-
-#             # Load the saved image using Keras and resize it to the mnist
-#             # format of 28x28 pixels
-#             image_size = (28, 28)
-#             im = image.load_img(filepath, target_size=image_size,
-#                                 grayscale=True)
-
-#             # Convert the 2D image to an array of pixel values
-#             image_array = prepare_image(im)
-#             print(image_array)
-
-#             # Get the tensorflow default graph and use it to make predictions
-#             global graph
-#             with graph.as_default():
-
-#                 # Use the model to make a prediction
-#                 predicted_digit = model.predict_classes(image_array)[0]
-#                 data["prediction"] = str(predicted_digit)
-
-#                 # indicate that the request was a success
-#                 data["success"] = True
-
-#             return jsonify(data)
-#     return '''
-#     <!doctype html>
-#     <title>Upload new File</title>
-#     <h1>Upload new File</h1>
-#     <form method=post enctype=multipart/form-data>
-#       <p><input type=file name=file>
-#          <input type=submit value=Upload>
-#     </form>
-#     '''
 
 
 if __name__ == "__main__":
