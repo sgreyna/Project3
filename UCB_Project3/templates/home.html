@@ -10,6 +10,41 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <link rel="stylesheet" type ="text/css" href="{{url_for('static', filename='style.css')}}">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script type ="text/javascript">
+
+    window.onload = function() {
+         what();
+            function what(){
+                var first =  '{{ firstY }}'; 
+                var second =  '{{ secondY }}'; 
+                var third =  '{{ thirdY }}'; 
+                console.log(first);
+                console.log(second)
+                console.log(third)
+                document.getElementById("lottoFirstPosition").innerHTML = first; 
+                document.getElementById("lottoSecondPosition").innerHTML =  second; 
+                document.getElementById("lottoThirdPosition").innerHTML =  third;
+
+                
+                console.log('{{list_of_files}}')
+
+                console.log('{{modelSelected}}')
+
+                // assign list of pretrained models
+
+                var j = '{{list_of_files}}' 
+                j = j.split(',')  
+                console.log(j.length)
+                var options = '';
+
+                for (var i = 0; i < j.length; i++) {
+                    options += '<option value="' + j[i]+ '">' + j[i] + '</option>';
+                }
+                $("#trainedModelList").html(options);
+            };
+        }
+  </script>
+
     
 <title>UCB Project 3</title>
 </head>
@@ -43,7 +78,8 @@
                     <form action ="{{ url_for('predictTrainedModel') }}" method="post">
 
                         <p class = "p1">Predict Using a Trained ML Model:  </p>
-                        <p> <input type=file name=file>  </p>                       
+                        <select id = "trainedModelList" name = "trainedModelList">
+                        </select>                    
                         <p> <button type="submit" name="Predict" value="Submit" onclick = predictTrainedModel()>Predict</button> </p>
 
                         <br><br>
@@ -66,16 +102,29 @@
                     </form>  
                         <br>
 
-                        <div class = "row">
-                        
-                            <div class = "column" style="background-color: #aaa;">
-                                <h2>Prediction:</h2>                   
-                                          
-                                    <p class = "p2"> 1 2 3 </p>
-                                    <p class = "p1">Model Probability: </p>
+                         
+                    <div class = "row">
+                    <div class = "column" style="background-color: #aaa;">
+
+                    <form action ="{{ url_for('clear') }}" method="post">
+                                <h2>Prediction:</h2>    
+
+                                <table id='lottoValues'>
+                                    <tbody>
+                                    <tr class="bvrow">
+                                        <td class = "p2" name ="lottoFirstPosition" id = lottoFirstPosition placeholder = "1"/></td>
+                                        <td class = "p2" name="lottoSecondPosition" id="lottoSecondPosition" placeholder = "2"></td>
+                                        <td class = "p2" name="lottoThirdPosition" id="lottoThirdPosition" placeholder = "3"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>                
+                                <p class = "p1">Model Probability: </p>
+                                <button type="submit" name="clear" value="clear" style="font-weight:bold;" onclick = clear() >Clear</button> 
+                    </form>
+
                                 </div>
-                            <div class = "column"style="background-color: #bbb;">
-                                <h2>Actuals:</h2>                   
+                     <div class = "column"style="background-color: #bbb;">
+                     <h2>Actuals:</h2>                   
                                           
                      <form action ="{{ url_for('addToCsv') }}" method="post">
                             <input type ="text" id = firstNumberActual name = firstNumberActual style="font-size: 40pt; height:80px; width: 50px;font-weight:bolder;" maxlength = "1">
@@ -115,5 +164,8 @@
                 </div>     
             </div>    
     </div>
+
+
+
 </body>
 </html>
