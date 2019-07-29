@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for
 import pandas as pd
 import numpy
 import pickle
+import json
 
 
 
@@ -223,6 +224,21 @@ def getDataFromCSV():
 
     return render_template ('data.html', tables=[df.to_html(classes = 'data')], titles = df.columns.values)
 
+
+@app.route('/graph')
+def graph():
+
+    # Create a reference the CSV file desired
+    csv_path = "dailyData/dailyData.csv"
+
+    # Read the CSV into a Pandas DataFrame
+    df = pd.read_csv(csv_path)
+    df = df[['First Number', 'Second Number', 'Third Number']]
+    df = df.to_dict() 
+
+    print(df)
+
+    return render_template ('graph.html', df=df)
 
 
 if __name__ == "__main__":
