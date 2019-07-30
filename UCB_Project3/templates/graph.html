@@ -11,13 +11,6 @@
   <link rel="stylesheet" type ="text/css" href="{{url_for('static', filename='style.css')}}">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 
-  <script> 
-     // var myData = JSON.parse('{{ df | tojson | safe}}')
-
-      // console.log(myData)
-
-    
-    </script>
 
     
     <title>UCB Project 3</title>
@@ -39,10 +32,42 @@
       </div>
     </nav>
 
+     <div class = "container" >
+        
+            <div class="row">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                      
 
-      <p>'{{ name }}'</p>
+                      <form  action ="{{ url_for('graph') }}"  method="post">
 
-      <img src= '/graph' alt="Chart" height="42" width="42">
+                         <p class = "p1">Visualization: 
+                         <p>Choose a graph to view: </p>
+                            <select id = "graphlist" name = "graphlist">
+                                <option value = "Occurances">Occurances of Numbers</option>
+                                <option value = "HotNumbers">Hot Numbers</option>
+                            </select>  
+                            </p>
+
+                        
+                        <img src= '/graph' alt="Chart" height="42" width="42">
+                        <button type="submit" name = "select" value="Submit" onclick = graph()>Select</button>
+                          
+                        
+                    </form>  
+
+                      
+
+
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+
+      
 
 </body>
 
