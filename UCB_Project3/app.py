@@ -234,27 +234,97 @@ def getDataFromCSV():
     return render_template ('data.html', tables=[df.to_html(classes = 'data')], titles = df.columns.values)
 
 
-@app.route('/graph')
+@app.route("/graph", methods=['GET', 'POST'])
 def graph():
-
-    # Create a reference the CSV file desired
-    csv_path = "dailyData/dailyData.csv"
-
-
-    # Read the CSV into a Pandas DataFrame
-    df = pd.read_csv(csv_path)
-    df = df[['First Number', 'Second Number', 'Third Number']]
-    new_df_col_all= df[['First Number', 'Second Number' ,'Third Number']]
-
-    
-    sns.countplot(x="variable", hue="value", data=pd.melt(new_df_col_all))
-    plt.title("Occurence in all three positions")
-    img = BytesIO()
-    plt.savefig(img)
-    img.seek(0)
+    if request.method == 'POST':
+        # Which graph is selected?
+        graphlist = request.form.get('graphlist')
+        graphlist = str(graphlist)
+        print(graphlist)
 
 
-    return send_file(img, mimetype = 'image/png') 
+        if graphlist== 'Occurances':
+
+            # Create a reference the CSV file desired
+            csv_path = "dailyData/dailyData.csv"
+            #Read the CSV into a Pandas DataFrame
+            df = pd.read_csv(csv_path)
+            df = df[['First Number', 'Second Number', 'Third Number']]
+            new_df_col_all= df[['First Number', 'Second Number' ,'Third Number']]
+            sns.countplot(x="variable", hue="value", data=pd.melt(new_df_col_all))
+            plt.title("Occurence in all three positions")
+            img = BytesIO()
+            plt.savefig(img)
+            img.seek(0)
+
+            return send_file(img, mimetype = 'image/png') 
+
+        elif graphlist == 'HotNumbers':
+            # Create a reference the CSV file desired
+            csv_path = "dailyData/dailyData.csv"
+            # Read the CSV into a Pandas DataFrame
+            df = pd.read_csv(csv_path)
+            df = df[['First Number', 'Second Number', 'Third Number']]
+            new_df_col_all= df[['First Number', 'Second Number' ,'Third Number']]
+
+            #Count of occurances  in first position
+            First= new_df_col_all.groupby(['First Number']).count().reset_index()                
+            First = First.drop(columns=['First Number', 'Third Number'])
+            First = First.rename(columns={'Second Number': 'First'}).reset_index()
+            #Count of occurances  in second position
+            Second= new_df_col_all.groupby(['Second Number']).count().reset_index()
+            Second = Second.drop(columns=['Second Number', 'Third Number'])
+            Second = Second.rename(columns={'First Number': 'Second'}).reset_index()
+            #Count of occurances  in third position
+            Third= new_df_col_all.groupby(['Third Number']).count().reset_index()                
+            Third = Third.drop(columns=['Third Number', 'Second Number'])
+            Third = Third.rename(columns={'First Number': 'Third'}).reset_index()
+            #Mergec Columns
+            hotN =  pd.merge(First, Second,  on='index', how='inner')                
+            hotN =  pd.merge(hotN, Third,  on='index', how='inner')
+            #Get total
+            hotN['Total'] = hotN['First'].sum()
+            #Get percentages
+            hotN['PFirst'] = hotN['First']/hotN['Total']
+            hotN['PSecond'] = hotN['Second']/hotN['Total']
+            hotN['PThird'] = hotN['Third']/hotN['Total']
+            hotN = hotN.rename(columns = {'index': 'LottoNum'}).reset_index()
+            #Get index of max values
+            hotNarray = hotN.idxmax().values
+            #declare an array
+            valNarray = []
+            #get hot number and % of occurance for 1st position
+            photF= hotN[(hotN['LottoNum'] == hotNarray[6])]
+            photF = photF[['LottoNum', 'PFirst']]
+            valNarray.append(photF.values[0])
+            #get hot number and % of occurance for 2nd position
+            photS= hotN[(hotN['LottoNum'] == hotNarray[7])]
+            photS = photS[['LottoNum', 'PSecond']]
+            valNarray.append(photS.values[0])
+            #get hot number and % of occurance for 3rd position
+            photT= hotN[(hotN['LottoNum'] == hotNarray[8])]
+            photT = photT[['LottoNum', 'PThird']]
+            valNarray.append(photT.values[0])
+            #turn to dataframe
+            dfhotNum = pd.DataFrame(valNarray)
+
+
+            # plot the hot number graph
+            plt.figure(figsize=(5,5))
+            dfhotNum.plot(kind='bar', x =0, y = 1,alpha=0.75, rot=0, legend=None)
+            plt.title("Percentage of Most Occuring Daily 3 Numbers")
+            #plt.xlabel("Daily 3 Number by Position")
+            plt.ylabel("Percent")
+            plt.xlabel("")
+            img = BytesIO()
+            plt.savefig(img)
+            img.seek(0)
+
+            return send_file(img, mimetype = 'image/png') 
+        else:
+            return render_template ('graph.html')
+
+    return render_template ('graph.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
