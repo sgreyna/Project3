@@ -87,20 +87,7 @@
 
                     </form>  
 
-                    <form action ="{{ url_for('predictAndTrain') }}" method="post">
-
-                         <p class = "p1">Train and Predict a New Model: 
-                         <p>Choose an ML Model:
-                            <select>
-                                <option value = "KerasSequence">Keras Sequence</option>
-                                <option value = "SKLearnLinearModel">SKLearn LinearModel</option>
-                                <option value = "CPT">Compact Prediction Tree</option>
-                            </select>  </p>
-                        </p>
-                          
-                         <p>Upload Data: <input type=file name=file> </p>
-                        <button type="submit" name = "Train" value="Train" onclick = predictAndTrain()>Train & Predict</button>
-                    </form>  
+                
                         <br>
 
                          
@@ -119,7 +106,7 @@
                                     </tr>
                                     </tbody>
                                 </table>                
-                                <p class = "p1">Model Probability: </p>
+                                
                                 <button type="submit" name="clear" value="clear" style="font-weight:bold;" onclick = clear() >Clear</button> 
                     </form>
 
