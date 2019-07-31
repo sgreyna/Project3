@@ -148,7 +148,7 @@ def predictTrainedModel():
 
             return render_template ('home.html', firstY=firstY, secondY=secondY, thirdY=thirdY, list_of_files = list_of_files, modelSelected= modelSelected)
 
-        elif modelSelected.find('pSKLearn_MultipleRegression') > 0:
+        elif modelSelected.find('SKLearn_MultipleRegression') > 0:
 
             # get new X
             datadf['lottoX'] = datadf['First Number'].astype(str) +  datadf['Second Number'].astype(str) +  datadf['Third Number'].astype(str) 
@@ -161,12 +161,51 @@ def predictTrainedModel():
 
             #load model
             import pickle
-            pkl_filename = "MLModels/pSKLearn_MultipleRegression_AP_R100_R000.pkl"
+            pkl_filename = "MLModels/SKLearn_MultipleRegression_AP_R100_R000.pkl"
             with open(pkl_filename, 'rb') as file:
                 pickle_model = pickle.load(file)
 
             #predict
             Ypredict = pickle_model.predict(newX)
+            Ypredict = int(numpy.round(Ypredict,0))
+            Ypredict = str(Ypredict)
+
+            firstY = int(Ypredict[0])
+            secondY = int(Ypredict[1])
+            thirdY = int(Ypredict[2])
+
+            list_of_files = getListOfTrainedModels()
+
+            return render_template ('home.html', firstY=firstY, secondY=secondY, thirdY=thirdY, list_of_files = list_of_files)
+
+        elif modelSelected.find('SKLearn_LinearRegression') > 0:
+           
+            datadf['lottoNum'] = datadf['First Number'].astype(str) +  datadf['Second Number'].astype(str) +  datadf['Third Number'].astype(str) 
+            datadf['lottoX'] = datadf['lottoNum'].shift(-1)
+            datadf = datadf.drop('Draw Date', axis=1)
+            datadf = datadf.drop('First Number', axis=1)
+            datadf = datadf.drop('Second Number', axis=1)
+            datadf = datadf.drop('Third Number', axis=1)
+            datadf = datadf.dropna()
+            datadf['lottoNum'] = datadf['lottoNum'].astype(int)
+            datadf['lottoX'] = datadf['lottoX'].astype(int)
+            df2 = pd.get_dummies(datadf)
+            X = df2[['lottoX','Draw Schedule_Evening', 'Draw Schedule_Morning']]
+            y = df2['lottoNum'].values.reshape(-1, 1)
+
+            X = X[-1:]
+            
+            
+
+
+            ## Load saved model
+            import pickle
+            pkl_filename = "MLModels/SKLearn_LinearRegression_MornEve.pkl"
+            with open(pkl_filename, 'rb') as file:
+                pickle_model = pickle.load(file)
+
+            #predict
+            Ypredict = pickle_model.predict(X)
             Ypredict = int(numpy.round(Ypredict,0))
             Ypredict = str(Ypredict)
 
@@ -213,8 +252,7 @@ def addToCsv():
         newData.to_csv(csv_path, mode='a', header = False, index = False)
 
         # alert('Data Save')
-        # return render_template('home.html')
-
+        return redirect (url_for("getDataFromCSV"))
 
     return render_template ('data.html')
 
@@ -242,8 +280,71 @@ def graph():
         graphlist = str(graphlist)
         print(graphlist)
 
+        if graphlist== 'FirstPosition':
 
-        if graphlist== 'Occurances':
+            # Create a reference the CSV file desired
+            csv_path = "dailyData/dailyData.csv"
+            #Read the CSV into a Pandas DataFrame
+            df = pd.read_csv(csv_path)
+            
+
+            #mpl.rc("figure", figsize=(3, 3))
+            plt.figure(figsize=(5,5))
+            ax = sns.countplot(y="First Number", data=df)
+            plt.title("Numbers First Positions")
+            plt.xlabel("Occurence")
+            plt.ylabel("Lotto Number")
+
+            img = BytesIO()
+            plt.savefig(img)
+            img.seek(0)
+
+            return send_file(img, mimetype = 'image/png') 
+
+        elif graphlist== 'SecondPosition':
+
+            # Create a reference the CSV file desired
+            csv_path = "dailyData/dailyData.csv"
+            #Read the CSV into a Pandas DataFrame
+            df = pd.read_csv(csv_path)
+            
+
+            #mpl.rc("figure", figsize=(3, 3))
+            plt.figure(figsize=(5,5))
+            ax = sns.countplot(y="Second Number", data=df)
+            plt.title("Numbers Second Positions")
+            plt.xlabel("Occurence")
+            plt.ylabel("Lotto Number")
+
+            img = BytesIO()
+            plt.savefig(img)
+            img.seek(0)
+
+            return send_file(img, mimetype = 'image/png') 
+
+        elif graphlist== 'ThirdPosition':
+
+            # Create a reference the CSV file desired
+            csv_path = "dailyData/dailyData.csv"
+            #Read the CSV into a Pandas DataFrame
+            df = pd.read_csv(csv_path)
+            
+
+            #mpl.rc("figure", figsize=(3, 3))
+            plt.figure(figsize=(5,5))
+            ax = sns.countplot(y="Third Number", data=df)
+            plt.title("Numbers Third Positions")
+            plt.xlabel("Occurence")
+            plt.ylabel("Lotto Number")
+
+            img = BytesIO()
+            plt.savefig(img)
+            img.seek(0)
+
+            return send_file(img, mimetype = 'image/png') 
+
+
+        elif graphlist== 'Occurances':
 
             # Create a reference the CSV file desired
             csv_path = "dailyData/dailyData.csv"
